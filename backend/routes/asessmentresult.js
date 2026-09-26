@@ -1,21 +1,27 @@
 const express = require("express");
 
-const authenticateToken = require("../middleware/auth.middleware");
-const authorizeRole = require("../middleware/role-validation");
+const router = express.Router();
+
+const authenticateToken = require("../middleware/authenticateToken");
 
 const {
   getAssessmentResults,
+  getAssessmentResultById,
   createAssessmentResult,
   updateAssessmentResult,
   deleteAssessmentResult,
-} = require("../controllers/assessmentresult.controller");
-
-const router = express.Router();
+} = require("../controllers/assessmentResultController");
 
 router.get(
   "/",
   authenticateToken,
   getAssessmentResults
+);
+
+router.get(
+  "/:id",
+  authenticateToken,
+  getAssessmentResultById
 );
 
 router.post(
@@ -27,14 +33,12 @@ router.post(
 router.put(
   "/:id",
   authenticateToken,
-  authorizeRole("admin"),
   updateAssessmentResult
 );
 
 router.delete(
   "/:id",
   authenticateToken,
-  authorizeRole("admin"),
   deleteAssessmentResult
 );
 

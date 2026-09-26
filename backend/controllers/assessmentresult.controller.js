@@ -1,16 +1,52 @@
-const { AssessmentResult } = require("../models");
+const { AssessmentResult, Assessment } = require("../models");
 
 const getAssessmentResults = async (req, res) => {
   try {
-    const results = await AssessmentResult.findAll();
+    const results = await AssessmentResult.findAll({
+      where: {
+        user_id: req.user.id,
+      },
+      order: [["createdAt", "DESC"]],
+    });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Assessment results retrieved successfully",
       results,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Get assessment results error:", error);
+
+    return res.status(500).json({
       message: "Failed to retrieve assessment results",
+      error: error.message,
+    });
+  }
+};
+
+const getAssessmentResultById = async (req, res) => {
+  try {
+    const result = await AssessmentResult.findOne({
+      where: {
+        id: req.params.id,
+        user_id: req.user.id,
+      },
+    });
+
+    if (!result) {
+      return res.status(404).json({
+        message: "Assessment result not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Assessment result retrieved successfully",
+      result,
+    });
+  } catch (error) {
+    console.error("Get assessment result error:", error);
+
+    return res.status(500).json({
+      message: "Failed to retrieve assessment result",
       error: error.message,
     });
   }
@@ -18,27 +54,37 @@ const getAssessmentResults = async (req, res) => {
 
 const createAssessmentResult = async (req, res) => {
   try {
-    const { user_id, assessment_id, result, score } = req.body;
+    const assessment = await Assessment.findOne({
+      order: [["id", "ASC"]],
+    });
 
-    if (!user_id || !assessment_id || !result) {
+    if (!assessment) {
       return res.status(400).json({
-        message: "User ID, assessment ID, and result are required",
+        message:
+          "No assessment found. Please create an assessment first.",
       });
     }
 
-    const assessmentResult = await AssessmentResult.create({
-      user_id,
-      assessment_id,
-      result,
-      score: score || 0,
+    const newResult = await AssessmentResult.create({
+      user_id: req.user.id,
+      assessment_id: assessment.id,
+
+      result: "Explorative",
+
+      score: 82,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Assessment result created successfully",
-      assessmentResult,
+      result: newResult,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error(
+      "Create assessment result error:",
+      error
+    );
+
+    return res.status(500).json({
       message: "Failed to create assessment result",
       error: error.message,
     });
@@ -47,10 +93,13 @@ const createAssessmentResult = async (req, res) => {
 
 const updateAssessmentResult = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { result, score } = req.body;
-
-    const assessmentResult = await AssessmentResult.findByPk(id);
+    const assessmentResult =
+      await AssessmentResult.findOne({
+        where: {
+          id: req.params.id,
+          user_id: req.user.id,
+        },
+      });
 
     if (!assessmentResult) {
       return res.status(404).json({
@@ -59,17 +108,29 @@ const updateAssessmentResult = async (req, res) => {
     }
 
     await assessmentResult.update({
-      result,
-      score,
+      result:
+        req.body.result ??
+        assessmentResult.result,
+
+      score:
+        req.body.score ??
+        assessmentResult.score,
     });
 
-    res.status(200).json({
-      message: "Assessment result updated successfully",
-      assessmentResult,
+    return res.status(200).json({
+      message:
+        "Assessment result updated successfully",
+      result: assessmentResult,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to update assessment result",
+    console.error(
+      "Update assessment result error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to update assessment result",
       error: error.message,
     });
   }
@@ -77,9 +138,13 @@ const updateAssessmentResult = async (req, res) => {
 
 const deleteAssessmentResult = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const assessmentResult = await AssessmentResult.findByPk(id);
+    const assessmentResult =
+      await AssessmentResult.findOne({
+        where: {
+          id: req.params.id,
+          user_id: req.user.id,
+        },
+      });
 
     if (!assessmentResult) {
       return res.status(404).json({
@@ -89,12 +154,19 @@ const deleteAssessmentResult = async (req, res) => {
 
     await assessmentResult.destroy();
 
-    res.status(200).json({
-      message: "Assessment result deleted successfully",
+    return res.status(200).json({
+      message:
+        "Assessment result deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to delete assessment result",
+    console.error(
+      "Delete assessment result error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to delete assessment result",
       error: error.message,
     });
   }
@@ -102,6 +174,7 @@ const deleteAssessmentResult = async (req, res) => {
 
 module.exports = {
   getAssessmentResults,
+  getAssessmentResultById,
   createAssessmentResult,
   updateAssessmentResult,
   deleteAssessmentResult,

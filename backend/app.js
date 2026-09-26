@@ -13,6 +13,7 @@ const majorRecomRouter = require("./routes/majorrecomendation");
 const learningModuleRouter = require("./routes/learningmodule");
 const roadmapRouter = require("./routes/roadmap");
 const learningProgressRouter = require("./routes/learningprogress");
+const assessmentResultRouter = require("./routes/asessmentresult");
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/majorrecomendatios", majorRecomRouter);
 app.use("/learningmodule", learningModuleRouter);
 app.use("/roadmap", roadmapRouter);
 app.use("/learningprogress", learningProgressRouter);
+app.use("/assessment-result", assessmentResultRouter);
 
 app.get("/", (req, res) => {
   res.json({
