@@ -4,40 +4,39 @@ const authenticateToken = require("../middleware/auth.middleware");
 const authorizeRole = require("../middleware/role-validation");
 
 const {
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-} = require("../controllers/user.controllers");
+  getOptions,
+  createOption,
+  updateOption,
+  deleteOption,
+} = require("../controllers/option.controller");
 
 const router = express.Router();
 
 router.get(
   "/",
   authenticateToken,
-  authorizeRole("admin"),
-  getUsers
+  getOptions
 );
 
 router.post(
   "/",
   authenticateToken,
   authorizeRole("admin"),
-  createUser
+  createOption
 );
 
 router.put(
   "/:id",
   authenticateToken,
   authorizeRole("admin"),
-  updateUser
+  updateOption
 );
 
 router.delete(
   "/:id",
   authenticateToken,
   authorizeRole("admin"),
-  deleteUser
+  deleteOption
 );
 
 module.exports = router;

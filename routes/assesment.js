@@ -4,40 +4,39 @@ const authenticateToken = require("../middleware/auth.middleware");
 const authorizeRole = require("../middleware/role-validation");
 
 const {
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-} = require("../controllers/user.controllers");
+  getAssessments,
+  createAssessment,
+  updateAssessment,
+  deleteAssessment,
+} = require("../controllers/assesment.controller");
 
 const router = express.Router();
 
 router.get(
   "/",
   authenticateToken,
-  authorizeRole("admin"),
-  getUsers
+  getAssessments
 );
 
 router.post(
   "/",
   authenticateToken,
   authorizeRole("admin"),
-  createUser
+  createAssessment
 );
 
 router.put(
   "/:id",
   authenticateToken,
   authorizeRole("admin"),
-  updateUser
+  updateAssessment
 );
 
 router.delete(
   "/:id",
   authenticateToken,
   authorizeRole("admin"),
-  deleteUser
+  deleteAssessment
 );
 
 module.exports = router;
